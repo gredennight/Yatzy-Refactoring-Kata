@@ -1,242 +1,130 @@
+using System.Linq;
+
 namespace Yatzy
 {
     public class Yatzy
     {
         protected int[] dice;
-
-        public Yatzy(int d1, int d2, int d3, int d4, int _5)
+        public Yatzy(int d1, int d2, int d3, int d4, int d5)
         {
             dice = new int[5];
             dice[0] = d1;
             dice[1] = d2;
             dice[2] = d3;
             dice[3] = d4;
-            dice[4] = _5;
+            dice[4] = d5;
         }
-
-        public static int Chance(int d1, int d2, int d3, int d4, int d5)
+        public int Chance()
         {
-            var total = 0;
-            total += d1;
-            total += d2;
-            total += d3;
-            total += d4;
-            total += d5;
-            return total;
+            return this.dice.Sum();
         }
-
-        public static int yatzy(params int[] dice)
+        public int yatzy()
         {
-            var counts = new int[6];
-            foreach (var die in dice)
-                counts[die - 1]++;
-            for (var i = 0; i != 6; i++)
-                if (counts[i] == 5)
-                    return 50;
+            if (this.dice.Max() == this.dice.Min())
+            {
+                return 50;
+            }
             return 0;
         }
-
-        public static int Ones(int d1, int d2, int d3, int d4, int d5)
+        private int NumberOfSame(int die_value)
         {
-            var sum = 0;
-            if (d1 == 1) sum++;
-            if (d2 == 1) sum++;
-            if (d3 == 1) sum++;
-            if (d4 == 1) sum++;
-            if (d5 == 1)
-                sum++;
-
-            return sum;
+            int count = 0;
+            for (int i = 0; i < this.dice.Length; i++)
+            {
+                if (this.dice[i] == die_value)
+                {
+                    count++;
+                }
+            }
+            return count;
         }
-
-        public static int Twos(int d1, int d2, int d3, int d4, int d5)
+        public int Ones()
         {
-            var sum = 0;
-            if (d1 == 2) sum += 2;
-            if (d2 == 2) sum += 2;
-            if (d3 == 2) sum += 2;
-            if (d4 == 2) sum += 2;
-            if (d5 == 2) sum += 2;
-            return sum;
+            return this.NumberOfSame(1);
         }
-
-        public static int Threes(int d1, int d2, int d3, int d4, int d5)
+        public int Twos()
         {
-            int s;
-            s = 0;
-            if (d1 == 3) s += 3;
-            if (d2 == 3) s += 3;
-            if (d3 == 3) s += 3;
-            if (d4 == 3) s += 3;
-            if (d5 == 3) s += 3;
-            return s;
+            return this.NumberOfSame(2) * 2;
         }
-
+        public int Threes()
+        {
+            return this.NumberOfSame(3) * 3;
+        }
         public int Fours()
         {
-            int sum;
-            sum = 0;
-            for (var at = 0; at != 5; at++)
-                if (dice[at] == 4)
-                    sum += 4;
-            return sum;
+            return this.NumberOfSame(4) * 4;
         }
-
         public int Fives()
         {
-            var s = 0;
-            int i;
-            for (i = 0; i < dice.Length; i++)
-                if (dice[i] == 5)
-                    s = s + 5;
-            return s;
+            return this.NumberOfSame(5) * 5;
         }
-
-        public int sixes()
+        public int Sixes()
         {
-            var sum = 0;
-            for (var at = 0; at < dice.Length; at++)
-                if (dice[at] == 6)
-                    sum = sum + 6;
-            return sum;
+            return this.NumberOfSame(6) * 6;
         }
-
-        public static int ScorePair(int d1, int d2, int d3, int d4, int d5)
+        public int Pair(int max_die_value = 6)
         {
-            var counts = new int[6];
-            counts[d1 - 1]++;
-            counts[d2 - 1]++;
-            counts[d3 - 1]++;
-            counts[d4 - 1]++;
-            counts[d5 - 1]++;
-            int at;
-            for (at = 0; at != 6; at++)
-                if (counts[6 - at - 1] >= 2)
-                    return (6 - at) * 2;
+            for (int i = max_die_value; i > 0; i--)
+            {
+                if (this.NumberOfSame(i) >= 2)
+                    return i * 2;
+            }
             return 0;
         }
-
-        public static int TwoPair(int d1, int d2, int d3, int d4, int d5)
+        public int TwoPair()
         {
-            var counts = new int[6];
-            counts[d1 - 1]++;
-            counts[d2 - 1]++;
-            counts[d3 - 1]++;
-            counts[d4 - 1]++;
-            counts[d5 - 1]++;
-            var n = 0;
-            var score = 0;
-            for (var i = 0; i < 6; i += 1)
-                if (counts[6 - i - 1] >= 2)
-                {
-                    n++;
-                    score += 6 - i;
-                }
-
-            if (n == 2)
-                return score * 2;
+            var sumOfPair1 = this.Pair();
+            if (sumOfPair1 != 0)
+            {
+                var sumOfPair2 = this.Pair((sumOfPair1 / 2) - 1);
+                if (sumOfPair2 != 0)
+                    return sumOfPair1 + sumOfPair2;
+            }
             return 0;
         }
-
-        public static int FourOfAKind(int _1, int _2, int d3, int d4, int d5)
+        public int ThreeOfAKind(int max_die_value = 6)
         {
-            int[] tallies;
-            tallies = new int[6];
-            tallies[_1 - 1]++;
-            tallies[_2 - 1]++;
-            tallies[d3 - 1]++;
-            tallies[d4 - 1]++;
-            tallies[d5 - 1]++;
-            for (var i = 0; i < 6; i++)
-                if (tallies[i] >= 4)
-                    return (i + 1) * 4;
+            for (int i = max_die_value; i > 0; i--)
+            {
+                if (this.NumberOfSame(i) >= 3)
+                    return i * 3;
+            }
             return 0;
         }
-
-        public static int ThreeOfAKind(int d1, int d2, int d3, int d4, int d5)
+        public int FourOfAKind(int max_die_value = 6)
         {
-            int[] t;
-            t = new int[6];
-            t[d1 - 1]++;
-            t[d2 - 1]++;
-            t[d3 - 1]++;
-            t[d4 - 1]++;
-            t[d5 - 1]++;
-            for (var i = 0; i < 6; i++)
-                if (t[i] >= 3)
-                    return (i + 1) * 3;
+            for (int i = max_die_value; i > 0; i--)
+            {
+                if (this.NumberOfSame(i) >= 4)
+                    return i * 4;
+            }
             return 0;
         }
-
-        public static int SmallStraight(int d1, int d2, int d3, int d4, int d5)
+        public int SmallStraight()
         {
-            int[] tallies;
-            tallies = new int[6];
-            tallies[d1 - 1] += 1;
-            tallies[d2 - 1] += 1;
-            tallies[d3 - 1] += 1;
-            tallies[d4 - 1] += 1;
-            tallies[d5 - 1] += 1;
-            if (tallies[0] == 1 &&
-                tallies[1] == 1 &&
-                tallies[2] == 1 &&
-                tallies[3] == 1 &&
-                tallies[4] == 1)
+            if (this.Pair() == 0 && this.dice.Max() == 5)
+            {
                 return 15;
+            }
             return 0;
         }
-
-        public static int LargeStraight(int d1, int d2, int d3, int d4, int d5)
+        public int LargeStraight()
         {
-            int[] tallies;
-            tallies = new int[6];
-            tallies[d1 - 1] += 1;
-            tallies[d2 - 1] += 1;
-            tallies[d3 - 1] += 1;
-            tallies[d4 - 1] += 1;
-            tallies[d5 - 1] += 1;
-            if (tallies[1] == 1 &&
-                tallies[2] == 1 &&
-                tallies[3] == 1 &&
-                tallies[4] == 1
-                && tallies[5] == 1)
+            if (this.Pair() == 0 && this.dice.Max() == 6)
+            {
                 return 20;
+            }
             return 0;
         }
-
-        public static int FullHouse(int d1, int d2, int d3, int d4, int d5)
+        public int FullHouse()
         {
-            int[] tallies;
-            var _2 = false;
-            int i;
-            var _2_at = 0;
-            var _3 = false;
-            var _3_at = 0;
-
-
-            tallies = new int[6];
-            tallies[d1 - 1] += 1;
-            tallies[d2 - 1] += 1;
-            tallies[d3 - 1] += 1;
-            tallies[d4 - 1] += 1;
-            tallies[d5 - 1] += 1;
-
-            for (i = 0; i != 6; i += 1)
-                if (tallies[i] == 2)
-                {
-                    _2 = true;
-                    _2_at = i + 1;
-                }
-
-            for (i = 0; i != 6; i += 1)
-                if (tallies[i] == 3)
-                {
-                    _3 = true;
-                    _3_at = i + 1;
-                }
-
-            if (_2 && _3)
-                return _2_at * 2 + _3_at * 3;
+            var tripleValue = this.ThreeOfAKind() / 3;
+            for (int doubleValue = 6; doubleValue > 0; doubleValue--)
+            {
+                var numberOfSame = this.NumberOfSame(doubleValue);
+                if (doubleValue != tripleValue && numberOfSame == 2)
+                    return (tripleValue * 3) + (doubleValue * 2);
+            }
             return 0;
         }
     }
